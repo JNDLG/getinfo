@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template_string
 import subprocess
 import os
 import logging
-import json  # 添加这一行
+import json
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -13,12 +13,7 @@ def get_video_info(url, language):
     else:
         os.environ['LANG'] = 'zh_CN.UTF-8'
     
-    cmd = (
-        f"mediainfo --Output=JSON "
-        f"--Inform='{{{{General;%Duration/String3%,%OverallBitRate/String%,%Format%}},"
-        f"{{Video;%CodecID%,%Width%,%Height%,%FrameRate%,%BitRate/String%}},"
-        f"{{Audio;%CodecID%,%BitRate/String%,%Channels/String%,%Language/String%}}}}' {url}"
-    )
+    cmd = f"mediainfo --Output=JSON {url}"
     
     app.logger.debug(f"Running command: {cmd}")
     try:
