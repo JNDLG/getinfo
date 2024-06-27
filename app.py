@@ -16,16 +16,27 @@ def index():
         <html>
         <head>
             <title>Video Info</title>
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+            <style>
+                body { padding: 20px; }
+                .container { max-width: 600px; margin: auto; }
+                pre { white-space: pre-wrap; }
+            </style>
         </head>
         <body>
-            <h1>Enter Video URL</h1>
-            <form id="videoForm">
-                <label for="url">Video URL:</label>
-                <input type="text" id="url" name="url">
-                <button type="button" onclick="getVideoInfo()">Get Info</button>
-            </form>
-            <h2>Video Info:</h2>
-            <pre id="info"></pre>
+            <div class="container">
+                <h1 class="text-center">Enter Video URL</h1>
+                <form id="videoForm" class="form-inline my-4">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="url" class="sr-only">Video URL</label>
+                        <input type="text" class="form-control" id="url" name="url" placeholder="Enter video URL">
+                    </div>
+                    <button type="button" class="btn btn-primary mb-2" onclick="getVideoInfo()">Get Info</button>
+                </form>
+                <h2>Video Info:</h2>
+                <button class="btn btn-secondary mb-2" onclick="copyToClipboard()">Copy to Clipboard</button>
+                <div id="info" class="border p-3"></div>
+            </div>
             <script>
                 function getVideoInfo() {
                     const url = document.getElementById('url').value;
@@ -38,11 +49,39 @@ def index():
                     })
                     .then(response => response.json())
                     .then(data => {
-                        document.getElementById('info').innerText = JSON.stringify(data, null, 2);
+                        displayInfo(data);
                     })
                     .catch(error => {
                         document.getElementById('info').innerText = 'Error: ' + error;
                     });
+                }
+
+                function displayInfo(data) {
+                    const infoDiv = document.getElementById('info');
+                    infoDiv.innerHTML = '';
+                    const table = document.createElement('table');
+                    table.className = 'table table-striped';
+                    for (let key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            const row = table.insertRow();
+                            const cell1 = row.insertCell(0);
+                            const cell2 = row.insertCell(1);
+                            cell1.textContent = key;
+                            cell2.textContent = JSON.stringify(data[key], null, 2);
+                        }
+                    }
+                    infoDiv.appendChild(table);
+                }
+
+                function copyToClipboard() {
+                    const infoDiv = document.getElementById('info');
+                    const range = document.createRange();
+                    range.selectNode(infoDiv);
+                    window.getSelection().removeAllRanges(); 
+                    window.getSelection().addRange(range);
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges();
+                    alert('Copied to clipboard');
                 }
             </script>
         </body>
