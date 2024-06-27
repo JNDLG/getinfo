@@ -53,6 +53,7 @@ def index():
                 .section-title { font-weight: bold; margin-top: 20px; }
                 .track-info { margin-bottom: 20px; }
                 .info-section { margin-bottom: 20px; }
+                .info-section { display: flex; flex-direction: row; justify-content: space-between; }  # 修改这里
             </style>
         </head>
         <body>
