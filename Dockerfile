@@ -14,4 +14,4 @@ COPY . /app
 RUN pip install -r requirements.txt
 
 # 运行 Flask 应用
-CMD ["python", "video_info.py"]
+CMD ["python", "getinfo.py"]
