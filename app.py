@@ -52,6 +52,7 @@ def index():
                 pre { white-space: pre-wrap; }
                 .section-title { font-weight: bold; margin-top: 20px; }
                 .track-info { margin-bottom: 20px; }
+                .info-section { margin-bottom: 20px; }
             </style>
         </head>
         <body>
@@ -119,23 +120,43 @@ def index():
                         return;
                     }
 
-                    tracks.forEach(track => {
-                        const sectionTitle = document.createElement('h4');
-                        sectionTitle.className = 'section-title';
-                        sectionTitle.textContent = track['@type'];
-                        infoDiv.appendChild(sectionTitle);
+                    let generalInfo = '';
+                    let videoInfo = '';
+                    let audioInfo = '';
+                    let textInfo = '';
 
-                        const trackInfo = document.createElement('div');
-                        trackInfo.className = 'track-info';
+                    tracks.forEach(track => {
+                        const type = track['@type'];
                         const trackDetails = Object.keys(track).map(key => {
                             if (key !== '@type') {
-                                return `<strong>${key}</strong>: ${track[key]}`;
+                                return `${key}: ${track[key]}`;
                             }
                             return '';
-                        }).join('<br>');
-                        trackInfo.innerHTML = trackDetails;
-                        infoDiv.appendChild(trackInfo);
+                        }).join('\n');
+
+                        if (type === 'General') {
+                            generalInfo += trackDetails + '\n';
+                        } else if (type === 'Video') {
+                            videoInfo += trackDetails + '\n';
+                        } else if (type === 'Audio') {
+                            audioInfo += trackDetails + '\n';
+                        } else if (type.startsWith('Text')) {
+                            textInfo += trackDetails + '\n';
+                        }
                     });
+
+                    if (generalInfo) {
+                        infoDiv.innerHTML += `<pre class="info-section"><strong>General</strong>\n${generalInfo}</pre>`;
+                    }
+                    if (videoInfo) {
+                        infoDiv.innerHTML += `<pre class="info-section"><strong>Video</strong>\n${videoInfo}</pre>`;
+                    }
+                    if (audioInfo) {
+                        infoDiv.innerHTML += `<pre class="info-section"><strong>Audio</strong>\n${audioInfo}</pre>`;
+                    }
+                    if (textInfo) {
+                        infoDiv.innerHTML += `<pre class="info-section"><strong>Text</strong>\n${textInfo}</pre>`;
+                    }
                 }
 
                 function copyToClipboard() {
