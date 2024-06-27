@@ -1,4 +1,4 @@
-# 使用官方 Python 镜像作为基础镜像
+codeBlock: # 使用官方 Python 镜像作为基础镜像
 FROM python:3.8-slim
 
 # 安装 mediainfo
@@ -13,5 +13,5 @@ COPY . /app
 # 安装 Python 依赖
 RUN pip install -r requirements.txt
 
-# 运行脚本
+# 运行 Flask 应用
 CMD ["python", "getinfo.py"]
