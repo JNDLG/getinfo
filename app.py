@@ -24,9 +24,18 @@ def get_video_info(url, language):
     try:
         mediainfo_output = subprocess.check_output(cmd, shell=True).decode('utf-8')
         app.logger.debug(f"mediainfo output: {mediainfo_output}")
+        if not mediainfo_output.strip():  # 如果输出为空
+            raise ValueError("mediainfo returned an empty string")
         return json.loads(mediainfo_output)
     except subprocess.CalledProcessError as e:
         app.logger.error(f"Error running mediainfo: {e}")
+        raise
+    except json.JSONDecodeError as e:
+        app.logger.error(f"Error decoding JSON: {e}")
+        app.logger.error(f"mediainfo output: {mediainfo_output}")
+        raise
+    except Exception as e:
+        app.logger.error(f"Unexpected error: {e}")
         raise
 
 @app.route('/')
@@ -149,6 +158,12 @@ def video_info():
         return jsonify(info)
     except subprocess.CalledProcessError as e:
         app.logger.error(f"Error fetching video info for URL {url}: {e}")
+        return jsonify({'error': str(e)}), 500
+    except ValueError as e:
+        app.logger.error(f"Error: {e}")
+        return jsonify({'error': str(e)}), 500
+    except Exception as e:
+        app.logger.error(f"Unexpected error: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
