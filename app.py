@@ -22,13 +22,18 @@ def get_video_info(url, language):
     
     app.logger.debug(f"Running command: {cmd}")
     try:
-        mediainfo_output = subprocess.check_output(cmd, shell=True).decode('utf-8')
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        if result.returncode != 0:
+            app.logger.error(f"Error running mediainfo: {result.stderr}")
+            raise subprocess.CalledProcessError(result.returncode, cmd, output=result.stdout, stderr=result.stderr)
+
+        mediainfo_output = result.stdout
         app.logger.debug(f"mediainfo output: {mediainfo_output}")
         if not mediainfo_output.strip():  # 如果输出为空
             raise ValueError("mediainfo returned an empty string")
         return json.loads(mediainfo_output)
     except subprocess.CalledProcessError as e:
-        app.logger.error(f"Error running mediainfo: {e}")
+        app.logger.error(f"Error running mediainfo: {e.stderr}")
         raise
     except json.JSONDecodeError as e:
         app.logger.error(f"Error decoding JSON: {e}")
@@ -157,8 +162,8 @@ def video_info():
         app.logger.debug(f"Video info fetched successfully for URL: {url}")
         return jsonify(info)
     except subprocess.CalledProcessError as e:
-        app.logger.error(f"Error fetching video info for URL {url}: {e}")
-        return jsonify({'error': str(e)}), 500
+        app.logger.error(f"Error fetching video info for URL {url}: {e.stderr}")
+        return jsonify({'error': e.stderr}), 500
     except ValueError as e:
         app.logger.error(f"Error: {e}")
         return jsonify({'error': str(e)}), 500
