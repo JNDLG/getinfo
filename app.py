@@ -20,8 +20,13 @@ def get_video_info(url, language):
     )
     
     app.logger.debug(f"Running command: {cmd}")
-    mediainfo_output = subprocess.check_output(cmd, shell=True).decode('utf-8')
-    return json.loads(mediainfo_output)
+    try:
+        mediainfo_output = subprocess.check_output(cmd, shell=True).decode('utf-8')
+        app.logger.debug(f"mediainfo output: {mediainfo_output}")
+        return json.loads(mediainfo_output)
+    except subprocess.CalledProcessError as e:
+        app.logger.error(f"Error running mediainfo: {e}")
+        raise
 
 @app.route('/')
 def index():
