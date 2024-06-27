@@ -1,3 +1,2 @@
-mediainfo
 flask
 gunicorn
