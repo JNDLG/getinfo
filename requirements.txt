@@ -1,2 +1,3 @@
 mediainfo
 flask
+gunicorn
