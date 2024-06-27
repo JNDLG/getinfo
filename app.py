@@ -51,6 +51,7 @@ def index():
                 .container { max-width: 800px; margin: auto; }
                 pre { white-space: pre-wrap; }
                 .section-title { font-weight: bold; margin-top: 20px; }
+                .track-info { margin-bottom: 20px; }
             </style>
         </head>
         <body>
@@ -124,18 +125,16 @@ def index():
                         sectionTitle.textContent = track['@type'];
                         infoDiv.appendChild(sectionTitle);
 
-                        const table = document.createElement('table');
-                        table.className = 'table table-striped';
-                        Object.keys(track).forEach(key => {
+                        const trackInfo = document.createElement('div');
+                        trackInfo.className = 'track-info';
+                        const trackDetails = Object.keys(track).map(key => {
                             if (key !== '@type') {
-                                const row = table.insertRow();
-                                const cell1 = row.insertCell(0);
-                                const cell2 = row.insertCell(1);
-                                cell1.textContent = key;
-                                cell2.textContent = track[key];
+                                return `<strong>${key}</strong>: ${track[key]}`;
                             }
-                        });
-                        infoDiv.appendChild(table);
+                            return '';
+                        }).join('<br>');
+                        trackInfo.innerHTML = trackDetails;
+                        infoDiv.appendChild(trackInfo);
                     });
                 }
 
