@@ -19,8 +19,9 @@ def index():
             <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
             <style>
                 body { padding: 20px; }
-                .container { max-width: 600px; margin: auto; }
+                .container { max-width: 800px; margin: auto; }
                 pre { white-space: pre-wrap; }
+                .section-title { font-weight: bold; margin-top: 20px; }
             </style>
         </head>
         <body>
@@ -59,18 +60,27 @@ def index():
                 function displayInfo(data) {
                     const infoDiv = document.getElementById('info');
                     infoDiv.innerHTML = '';
-                    const table = document.createElement('table');
-                    table.className = 'table table-striped';
-                    for (let key in data) {
-                        if (data.hasOwnProperty(key)) {
-                            const row = table.insertRow();
-                            const cell1 = row.insertCell(0);
-                            const cell2 = row.insertCell(1);
-                            cell1.textContent = key;
-                            cell2.textContent = JSON.stringify(data[key], null, 2);
+
+                    const sections = ['General', 'Video', 'Audio', 'Text'];
+                    sections.forEach(section => {
+                        if (data[section]) {
+                            const sectionTitle = document.createElement('h4');
+                            sectionTitle.className = 'section-title';
+                            sectionTitle.textContent = section;
+                            infoDiv.appendChild(sectionTitle);
+
+                            const table = document.createElement('table');
+                            table.className = 'table table-striped';
+                            Object.keys(data[section]).forEach(key => {
+                                const row = table.insertRow();
+                                const cell1 = row.insertCell(0);
+                                const cell2 = row.insertCell(1);
+                                cell1.textContent = key;
+                                cell2.textContent = data[section][key];
+                            });
+                            infoDiv.appendChild(table);
                         }
-                    }
-                    infoDiv.appendChild(table);
+                    });
                 }
 
                 function copyToClipboard() {
