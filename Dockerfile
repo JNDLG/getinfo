@@ -1,4 +1,4 @@
-codeBlock: # 使用官方 Python 镜像作为基础镜像
+# 使用官方 Python 镜像作为基础镜像
 FROM python:3.8-slim
 
 # 安装 mediainfo
@@ -14,4 +14,4 @@ COPY . /app
 RUN pip install -r requirements.txt
 
 # 运行 Flask 应用
-CMD ["python", "getinfo.py"]
+CMD ["python", "video_info.py"]
