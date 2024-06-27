@@ -1,14 +1,25 @@
 from flask import Flask, request, jsonify, render_template_string
 import subprocess
-import json
+import os
 import logging
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-def get_video_info(url):
-    app.logger.debug(f"Fetching video info for URL: {url}")
-    cmd = f"mediainfo --Output=JSON {url}"
+def get_video_info(url, language):
+    if language == '英文':
+        os.environ['LANG'] = 'en_US.UTF-8'
+    else:
+        os.environ['LANG'] = 'zh_CN.UTF-8'
+    
+    cmd = (
+        f"mediainfo --Output=JSON "
+        f"--Inform='{{{{General;%Duration/String3%,%OverallBitRate/String%,%Format%}},"
+        f"{{Video;%CodecID%,%Width%,%Height%,%FrameRate%,%BitRate/String%}},"
+        f"{{Audio;%CodecID%,%BitRate/String%,%Channels/String%,%Language/String%}}}}' {url}"
+    )
+    
+    app.logger.debug(f"Running command: {cmd}")
     mediainfo_output = subprocess.check_output(cmd, shell=True).decode('utf-8')
     return json.loads(mediainfo_output)
 
@@ -35,6 +46,13 @@ def index():
                         <label for="url" class="sr-only">Video URL</label>
                         <input type="text" class="form-control" id="url" name="url" placeholder="Enter video URL">
                     </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="language" class="sr-only">Language</label>
+                        <select class="form-control" id="language">
+                            <option value="中文">中文</option>
+                            <option value="英文">英文</option>
+                        </select>
+                    </div>
                     <button type="button" class="btn btn-primary mb-2" onclick="getVideoInfo()">Get Info</button>
                 </form>
                 <h2>Video Info:</h2>
@@ -44,13 +62,14 @@ def index():
             <script>
                 function getVideoInfo() {
                     const url = document.getElementById('url').value;
-                    console.log(`Fetching video info for URL: ${url}`);
+                    const language = document.getElementById('language').value;
+                    console.log(`Fetching video info for URL: ${url} with language: ${language}`);
                     fetch('/video_info', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ url: url })
+                        body: JSON.stringify({ url: url, language: language })
                     })
                     .then(response => {
                         if (!response.ok) {
@@ -113,12 +132,13 @@ def index():
 def video_info():
     data = request.get_json()
     url = data.get('url')
+    language = data.get('language')
     if not url:
         app.logger.error("No URL provided")
         return jsonify({'error': 'No URL provided'}), 400
 
     try:
-        info = get_video_info(url)
+        info = get_video_info(url, language)
         app.logger.debug(f"Video info fetched successfully for URL: {url}")
         return jsonify(info)
     except subprocess.CalledProcessError as e:
