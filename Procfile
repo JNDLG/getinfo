@@ -1,1 +1,1 @@
-worker: python your_script.py
+worker: python getinfo.py
