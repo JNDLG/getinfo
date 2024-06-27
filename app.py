@@ -176,7 +176,9 @@ def index():
 
 @app.route('/video_info', methods=['POST'])
 def video_info():
+    app.logger.debug("Received request for /video_info")
     data = request.get_json()
+    app.logger.debug(f"Request {data}")
     url = data.get('url')
     language = data.get('language')
     if not url:
