@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template_string
 import subprocess
 import os
 import logging
+import json  # 添加这一行
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
