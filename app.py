@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify, render_template_string
 import subprocess
 import json
+import logging
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 def get_video_info(url):
+    app.logger.debug(f"Fetching video info for URL: {url}")
     cmd = f"mediainfo --Output=JSON {url}"
     mediainfo_output = subprocess.check_output(cmd, shell=True).decode('utf-8')
     return json.loads(mediainfo_output)
@@ -41,6 +44,7 @@ def index():
             <script>
                 function getVideoInfo() {
                     const url = document.getElementById('url').value;
+                    console.log(`Fetching video info for URL: ${url}`);
                     fetch('/video_info', {
                         method: 'POST',
                         headers: {
@@ -48,11 +52,18 @@ def index():
                         },
                         body: JSON.stringify({ url: url })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('Received video info:', data);
                         displayInfo(data);
                     })
                     .catch(error => {
+                        console.error('Error fetching video info:', error);
                         document.getElementById('info').innerText = 'Error: ' + error;
                     });
                 }
@@ -103,12 +114,15 @@ def video_info():
     data = request.get_json()
     url = data.get('url')
     if not url:
+        app.logger.error("No URL provided")
         return jsonify({'error': 'No URL provided'}), 400
 
     try:
         info = get_video_info(url)
+        app.logger.debug(f"Video info fetched successfully for URL: {url}")
         return jsonify(info)
     except subprocess.CalledProcessError as e:
+        app.logger.error(f"Error fetching video info for URL {url}: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
