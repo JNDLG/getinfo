@@ -14,4 +14,4 @@ COPY . /app
 RUN pip install -r requirements.txt
 
 # 运行 Flask 应用
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "video_info:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
